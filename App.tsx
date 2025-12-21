@@ -18,6 +18,7 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('cheeseexpert_db');
     return saved ? JSON.parse(saved) : INITIAL_CHEESES;
   });
+  
   const [preferences, setPreferences] = useState<UserPreferences>({
     likedTypes: [],
     dislikedTypes: [],
@@ -41,6 +42,9 @@ const App: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  // Використовуємо тільки детермінований сервіс
+  const fromager = useMemo(() => new FromagerService(), []);
+
   useEffect(() => {
     localStorage.setItem('cheeseexpert_favorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -49,17 +53,16 @@ const App: React.FC = () => {
     localStorage.setItem('cheeseexpert_db', JSON.stringify(cheeses));
   }, [cheeses]);
 
-  const fromager = useMemo(() => new FromagerService(), []);
-
-  const fetchRecommendations = useCallback(() => {
+  const fetchRecommendations = useCallback((excluded: string[] = []) => {
     setLoading(true);
     if (!hasAnalyzed) setHasAnalyzed(true);
     
+    // Імітація обробки даних для кращого UX
     setTimeout(() => {
-      const recs = fromager.getRecommendations(cheeses, preferences);
+      const recs = fromager.getRecommendations(cheeses, preferences, excluded);
       setRecommendations(recs.slice(0, 3));
       setLoading(false);
-    }, 800);
+    }, 400);
   }, [cheeses, preferences, fromager, hasAnalyzed]);
 
   const toggleFavorite = (id: string) => {
@@ -114,7 +117,7 @@ const App: React.FC = () => {
             </div>
             <div>
               <h1 className="text-md font-black text-stone-900 leading-tight tracking-tight">CHEESEEXPERT</h1>
-              <p className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">Expert Fromager System</p>
+              <p className="text-[8px] font-bold text-amber-600 uppercase tracking-wider">Rule-Based Expert System</p>
             </div>
           </div>
           <div className="flex bg-amber-50 p-1 rounded-lg">
@@ -197,23 +200,23 @@ const App: React.FC = () => {
               <div className={`transition-all duration-700 ${hasAnalyzed ? 'lg:w-[320px] w-full shrink-0 sticky top-24' : 'max-w-2xl w-full text-center'}`}>
                 {!hasAnalyzed && (
                   <div className="mb-10 animate-fadeIn">
-                    <h2 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tighter mb-4 leading-tight uppercase">МИСТЕЦТВО <br/><span className="text-amber-500">ВИБОРУ СИРУ</span></h2>
-                    <p className="text-stone-500 text-base font-medium max-w-md mx-auto leading-relaxed">Система CheeseExpert допоможе знайти ідеальний сир для вашої події чи вечері.</p>
+                    <h2 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tighter mb-4 leading-tight uppercase">ЛОГІЧНИЙ <br/><span className="text-amber-500">ПІДБІР СИРУ</span></h2>
+                    <p className="text-stone-500 text-base font-medium max-w-md mx-auto leading-relaxed">Детермінована експертна система для точного гастрономічного вибору.</p>
                   </div>
                 )}
                 <PreferenceManager preferences={preferences} onChange={setPreferences} compact={!hasAnalyzed} />
                 <div className={`mt-8 ${!hasAnalyzed ? 'flex justify-center' : ''}`}>
-                  <button onClick={fetchRecommendations} disabled={loading} className={`bg-amber-500 text-white font-black transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${hasAnalyzed ? 'w-full py-4 rounded-2xl text-xs' : 'px-16 py-6 rounded-[2.5rem] text-lg'} ${loading ? 'opacity-50 cursor-wait' : 'hover:bg-amber-600'}`}>
+                  <button onClick={() => fetchRecommendations()} disabled={loading} className={`bg-amber-500 text-white font-black transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${hasAnalyzed ? 'w-full py-4 rounded-2xl text-xs' : 'px-16 py-6 rounded-[2.5rem] text-lg'} ${loading ? 'opacity-50 cursor-wait' : 'hover:bg-amber-600'}`}>
                     {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> : null}
-                    <span className="uppercase tracking-widest">{hasAnalyzed ? 'Оновити пошук' : 'Знайти ідеальний сир'}</span>
+                    <span className="uppercase tracking-widest">{hasAnalyzed ? 'Перерахувати' : 'Запустити аналіз'}</span>
                   </button>
                 </div>
               </div>
 
               <div className={`flex-grow w-full transition-all duration-1000 ${hasAnalyzed ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none absolute invisible'}`}>
                 <div className="mb-6 flex justify-between items-center">
-                  <h3 className="text-lg font-black text-stone-900 uppercase tracking-tight">ЕКСПЕРТНІ РЕКОМЕНДАЦІЇ</h3>
-                  <span className="text-[9px] font-bold text-amber-600 uppercase border border-amber-200 px-3 py-1 rounded-full">FROMAGER CHOICE</span>
+                  <h3 className="text-lg font-black text-stone-900 uppercase tracking-tight">РЕЗУЛЬТАТИ АЛГОРИТМУ</h3>
+                  <span className="text-[9px] font-bold text-amber-600 uppercase border border-amber-200 px-3 py-1 rounded-full">DETERMINISTIC ENGINE</span>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -227,7 +230,7 @@ const App: React.FC = () => {
                             <span className="text-4xl">{getCheeseIcon(cheese.type)}</span>
                             <div className="text-right">
                               <div className="text-lg font-black text-stone-900">{cheese.pricePer100g} ₴</div>
-                              <div className="text-[8px] font-bold text-amber-700 uppercase tracking-wider">MATCH: {rec.score}%</div>
+                              <div className="text-[8px] font-bold text-amber-700 uppercase tracking-wider">SCORE: {rec.score}%</div>
                             </div>
                           </div>
                           <h3 className="font-black text-xl text-stone-900 mb-1 leading-tight uppercase line-clamp-2 min-h-[3rem]">{cheese.name}</h3>
@@ -238,7 +241,7 @@ const App: React.FC = () => {
                           </div>
                         </div>
                         <div className="p-8 pt-5 flex-grow flex flex-col">
-                          <div className="bg-amber-50/30 p-5 rounded-2xl border border-amber-100 mb-6 flex-grow">
+                          <div className="bg-stone-50/50 p-5 rounded-2xl border border-stone-100 mb-6 flex-grow">
                              <p className="text-[13px] text-stone-600 leading-relaxed font-medium italic line-clamp-4">"{rec.explanation}"</p>
                           </div>
                           <div className="grid grid-cols-2 gap-4 mb-6">
@@ -273,21 +276,24 @@ const App: React.FC = () => {
       <footer className="fixed bottom-0 left-0 right-0 py-4 px-10 bg-white/80 backdrop-blur-xl border-t border-amber-100 z-[60]">
         <div className="max-w-7xl mx-auto flex justify-between items-center text-[9px] font-bold text-amber-700 uppercase tracking-widest">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2"><span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span> FROMAGER CORE ACTIVE</span>
-            <span className="opacity-30 hidden sm:inline">DATABASE v2.0.0</span>
+            <span className="flex items-center gap-2"><span className="w-2 h-2 bg-green-500 rounded-full"></span> RULE ENGINE v2.5 STABLE</span>
+            <span className="opacity-30 hidden sm:inline">OFFLINE MODE</span>
           </div>
           <div className="flex items-center gap-2 italic lowercase font-medium text-stone-400">
-             cheeseexpert <span className="text-[8px] not-italic uppercase font-black text-amber-600">gourmet edition</span>
+             cheeseexpert <span className="text-[8px] not-italic uppercase font-black text-amber-600">deterministic edition</span>
           </div>
         </div>
       </footer>
 
-      {/* Modals */}
       {selectedCheese && (
         <CheeseModal wine={selectedCheese} isOpen={!!selectedCheeseId} onClose={() => setSelectedCheeseId(null)} isFavorite={favorites.includes(selectedCheese.id)} onToggleFavorite={toggleFavorite} />
       )}
       {replacingCheese && (
-        <ReplacementModal isOpen={!!replacingId} onClose={() => setReplacingId(null)} originalWine={replacingCheese} alternatives={recommendations} allWines={cheeses} onSelect={(id) => { setReplacingId(null); setSelectedCheeseId(id); }} onAutoSelect={() => setReplacingId(null)} />
+        <ReplacementModal isOpen={!!replacingId} onClose={() => setReplacingId(null)} originalWine={replacingCheese} alternatives={recommendations} allWines={cheeses} onSelect={(id) => { setReplacingId(null); setSelectedCheeseId(id); }} onAutoSelect={() => { 
+          // Логіка автозаміни: виключаємо поточний ID і перераховуємо
+          fetchRecommendations([replacingId]);
+          setReplacingId(null);
+        }} />
       )}
       <AddCheeseModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={addCheese} />
     </div>

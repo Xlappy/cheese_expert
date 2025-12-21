@@ -2,6 +2,10 @@
 import { Cheese, UserPreferences, Recommendation } from "../types";
 
 export class FromagerService {
+  /**
+   * Головний метод підбору. Працює суто на математичних вагах та логічних правилах.
+   * Слобність алгоритму: O(N), де N - кількість сирів у базі.
+   */
   getRecommendations(
     cheeses: Cheese[], 
     preferences: UserPreferences,
@@ -11,7 +15,7 @@ export class FromagerService {
       // 1. Технічні виключення (вже вибрані або замінені)
       if (excludedIds.includes(cheese.id)) return false;
       
-      // 2. СУВОРІ ФІЛЬТРИ ВИКЛЮЧЕННЯ (Exclusions)
+      // 2. СУВОРІ ФІЛЬТРИ ВИКЛЮЧЕННЯ (Boolean Reduction)
       if (preferences.dislikedTypes.includes(cheese.type)) return false;
       if (preferences.dislikedMilk.includes(cheese.milk)) return false;
       
@@ -32,46 +36,77 @@ export class FromagerService {
       let score = 0;
       const dataStr = `${cheese.flavorProfile} ${cheese.bestPairing} ${cheese.region} ${cheese.type} ${cheese.milk}`.toLowerCase();
       
-      // Бонуси за вподобання
-      preferences.likedTypes.forEach(t => {
-        if (cheese.type === t) score += 40;
-      });
+      // Система вагових коефіцієнтів (Weighted Ranking)
+      if (preferences.likedTypes.includes(cheese.type)) score += 45;
+      if (preferences.preferredMilk.includes(cheese.milk)) score += 35;
 
-      preferences.preferredMilk.forEach(m => {
-        if (cheese.milk === m) score += 30;
-      });
-
+      // Пошук збігів у смаковому профілі
       preferences.favoriteNotes.forEach(note => {
         if (dataStr.includes(note.toLowerCase())) score += 25;
       });
 
-      // Інтенсивність (чим ближче, тим краще)
+      // Математична близькість інтенсивності (Fuzzy matching)
+      // Чим менша різниця (intensityDiff), тим більше балів (Max 50)
       const intensityDiff = Math.abs(cheese.intensity - preferences.preferredIntensity);
-      score += (5 - intensityDiff) * 15;
+      score += (5 - intensityDiff) * 10;
 
-      // Пріоритет українським крафтовим сирам
-      if (cheese.origin === 'Ukrainian') score += 10;
+      // Пріоритет локального продукту
+      if (cheese.origin === 'Ukrainian') score += 15;
 
       return { cheese, score };
     });
 
-    // Сортування за балами
+    // Сортування за релевантністю (Descending order)
     scoredCandidates.sort((a, b) => b.score - a.score);
 
     return scoredCandidates.map(item => ({
       cheeseId: item.cheese.id,
-      explanation: this.generateExplanation(item.cheese, preferences, item.score),
-      score: Math.min(100, Math.round(item.score))
+      explanation: this.generateDeterministicExplanation(item.cheese, preferences),
+      score: Math.min(100, Math.round((item.score / 200) * 100)) // Нормалізація до 100%
     }));
   }
 
-  private generateExplanation(cheese: Cheese, prefs: UserPreferences, score: number): string {
-    const typeMap: any = { 'Hard': 'твердий', 'Blue': 'з пліснявою', 'Soft-Ripened': 'м’який', 'Fresh': 'свіжий' };
-    const milkMap: any = { 'Cow': 'коров’ячого', 'Goat': 'козячого', 'Sheep': 'овечого', 'Buffalo': 'буйволячого' };
+  /**
+   * Детермінований генератор пояснень на основі правил (Rule-based Explanation Generator).
+   */
+  private generateDeterministicExplanation(cheese: Cheese, prefs: UserPreferences): string {
+    const typeMap: Record<string, string> = { 
+      'Hard': 'витриманий твердий', 
+      'Blue': 'пікантний блакитний', 
+      'Soft-Ripened': 'делікатний м’який', 
+      'Fresh': 'ніжний свіжий',
+      'Washed-Rind': 'ароматний промитий',
+      'Semi-Soft': 'напівм’який'
+    };
     
-    let text = `Цей ${typeMap[cheese.type] || 'особливий'} сир з ${milkMap[cheese.milk]} молока ідеально підходить під ваш запит. `;
-    text += `Він має ${cheese.intensity >= 4 ? 'потужний' : 'збалансований'} характер з нотами ${cheese.flavorProfile.toLowerCase()}. `;
-    text += `Чудово пасує до: ${cheese.bestPairing.toLowerCase()}.`;
-    return text;
+    const milkMap: Record<string, string> = { 
+      'Cow': 'коров’ячого', 
+      'Goat': 'козячого', 
+      'Sheep': 'овечого', 
+      'Buffalo': 'буйволячого',
+      'Mixed': 'суміші'
+    };
+
+    let intro = `Система обрала цей ${typeMap[cheese.type] || 'крафтовий'} сир з ${milkMap[cheese.milk]} молока. `;
+    
+    // Пошук ключових збігів для обґрунтування вибору
+    const matchingNotes = prefs.favoriteNotes.filter(note => 
+      cheese.flavorProfile.toLowerCase().includes(note.toLowerCase())
+    );
+
+    let middle = '';
+    if (matchingNotes.length > 0) {
+      middle = `Він ідеально збігається з вашим запитом на ${matchingNotes.join(', ').toLowerCase()} відтінки смаку. `;
+    } else {
+      middle = `Його унікальний профіль (${cheese.flavorProfile.toLowerCase()}) розширить ваші гастрономічні горизонти. `;
+    }
+
+    let conclusion = `Рекомендована пара: ${cheese.bestPairing.toLowerCase()}.`;
+    
+    if (cheese.origin === 'Ukrainian') {
+      conclusion += ` Це високоякісний продукт з регіону ${cheese.region}.`;
+    }
+
+    return intro + middle + conclusion;
   }
 }
