@@ -1,0 +1,23 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "Backend server for Cheese Expert System",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "seed": "node seed.js",
+        "test": "node test_api.js"
+    },
+    "keywords": [
+        "cheese",
+        "expert-system",
+        "api"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "better-sqlite3": "^12.5.0",
+        "cors": "^2.8.5",
+        "express": "^5.2.1"
+    }
+}
