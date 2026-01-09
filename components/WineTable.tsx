@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Cheese } from '../types';
-import { CHEESE_TYPES } from '../constants';
+import { CHEESE_TYPES } from '../types';
 
 interface WineTableProps {
   wines: Cheese[];

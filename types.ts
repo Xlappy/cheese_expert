@@ -35,3 +35,13 @@ export interface Recommendation {
 }
 
 export type AppView = 'expert' | 'database' | 'favorites';
+
+export const CHEESE_TYPES = ['Fresh', 'Soft-Ripened', 'Semi-Soft', 'Hard', 'Blue', 'Washed-Rind'] as const;
+export const MILK_TYPES = ['Cow', 'Goat', 'Sheep', 'Buffalo', 'Mixed'] as const;
+
+export const FLAVOR_NOTES = [
+  'Вершковий', 'Горіховий', 'Карамельний', 'Грибний', 'Землистий', 'Гострий',
+  'Солоний', 'Трав’яний', 'Димний', 'Фруктовий', 'Кислуватий', 'Пікантний',
+  'Квітковий', 'Тваринний', 'Солодкий', 'Дріжджовий', 'Трюфельний', 'Аміачний',
+  'Металевий', 'Цитрусовий', 'Медовий'
+];

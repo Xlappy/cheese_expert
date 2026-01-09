@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserPreferences } from '../types';
-import { CHEESE_TYPES, MILK_TYPES, FLAVOR_NOTES } from '../constants';
+import { CHEESE_TYPES, MILK_TYPES, FLAVOR_NOTES } from '../types';
 
 interface PreferenceManagerProps {
   preferences: UserPreferences;
@@ -43,21 +43,21 @@ const PreferenceManager: React.FC<PreferenceManagerProps> = ({ preferences, onCh
 
   return (
     <div className={`bg-white transition-all duration-700 ${compact ? 'p-8 rounded-[3rem] shadow-2xl border border-amber-50' : 'p-6 rounded-3xl border border-stone-100'} space-y-8`}>
-      
+
       {/* Cheese Types Section */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">ТИПИ СИРУ</label>
           <div className="flex gap-3 text-[8px] font-bold uppercase">
-             <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> ТАК</span>
-             <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span> НІ</span>
+            <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> ТАК</span>
+            <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span> НІ</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {CHEESE_TYPES.map(t => (
-            <button 
-              key={t} 
-              onClick={() => toggleSelection(t, 'likedTypes', 'dislikedTypes')} 
+            <button
+              key={t}
+              onClick={() => toggleSelection(t, 'likedTypes', 'dislikedTypes')}
               className={`px-3 py-2 rounded-xl text-[10px] font-bold border transition-all duration-300 ${getBtnClass(t, preferences.likedTypes, preferences.dislikedTypes)}`}
             >
               {t}
@@ -71,9 +71,9 @@ const PreferenceManager: React.FC<PreferenceManagerProps> = ({ preferences, onCh
         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4 block">ВИД МОЛОКА</label>
         <div className="flex flex-wrap gap-2">
           {MILK_TYPES.map(m => (
-            <button 
-              key={m} 
-              onClick={() => toggleSelection(m, 'preferredMilk', 'dislikedMilk')} 
+            <button
+              key={m}
+              onClick={() => toggleSelection(m, 'preferredMilk', 'dislikedMilk')}
               className={`px-4 py-2 rounded-xl text-[10px] font-bold border transition-all duration-300 ${getBtnClass(m, preferences.preferredMilk, preferences.dislikedMilk)}`}
             >
               {m}
@@ -94,11 +94,10 @@ const PreferenceManager: React.FC<PreferenceManagerProps> = ({ preferences, onCh
               <button
                 key={lvl}
                 onClick={() => onChange({ ...preferences, preferredIntensity: lvl })}
-                className={`flex-1 py-3 rounded-xl border text-xs font-black transition-all ${
-                  preferences.preferredIntensity === lvl 
-                    ? 'bg-stone-900 text-white border-stone-900 shadow-md' 
+                className={`flex-1 py-3 rounded-xl border text-xs font-black transition-all ${preferences.preferredIntensity === lvl
+                    ? 'bg-stone-900 text-white border-stone-900 shadow-md'
                     : 'bg-stone-50 text-stone-400 border-stone-100'
-                }`}
+                  }`}
               >
                 {lvl}
               </button>
@@ -109,18 +108,18 @@ const PreferenceManager: React.FC<PreferenceManagerProps> = ({ preferences, onCh
         {/* Price and Aging Grid */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-3">
-             <div className="flex justify-between">
-                <label className="text-[9px] font-black text-stone-400 uppercase">Мін. витримка</label>
-                <span className="text-[9px] font-black text-stone-900">{preferences.minAging}м+</span>
-             </div>
-             <input type="range" min="0" max="24" step="3" value={preferences.minAging} onChange={(e) => onChange({ ...preferences, minAging: Number(e.target.value) })} className="w-full accent-stone-900" />
+            <div className="flex justify-between">
+              <label className="text-[9px] font-black text-stone-400 uppercase">Мін. витримка</label>
+              <span className="text-[9px] font-black text-stone-900">{preferences.minAging}м+</span>
+            </div>
+            <input type="range" min="0" max="24" step="3" value={preferences.minAging} onChange={(e) => onChange({ ...preferences, minAging: Number(e.target.value) })} className="w-full accent-stone-900" />
           </div>
           <div className="space-y-3">
-             <div className="flex justify-between">
-                <label className="text-[9px] font-black text-stone-400 uppercase">Макс. ціна (100г)</label>
-                <span className="text-[9px] font-black text-stone-900">{preferences.priceRange[1]}₴</span>
-             </div>
-             <input type="range" min="30" max="500" step="10" value={preferences.priceRange[1]} onChange={(e) => onChange({ ...preferences, priceRange: [0, Number(e.target.value)] })} className="w-full accent-amber-500" />
+            <div className="flex justify-between">
+              <label className="text-[9px] font-black text-stone-400 uppercase">Макс. ціна (100г)</label>
+              <span className="text-[9px] font-black text-stone-900">{preferences.priceRange[1]}₴</span>
+            </div>
+            <input type="range" min="30" max="500" step="10" value={preferences.priceRange[1]} onChange={(e) => onChange({ ...preferences, priceRange: [0, Number(e.target.value)] })} className="w-full accent-amber-500" />
           </div>
         </div>
 
@@ -144,8 +143,8 @@ const PreferenceManager: React.FC<PreferenceManagerProps> = ({ preferences, onCh
       </div>
 
       {compact && (
-        <button 
-          onClick={() => setShowAdvanced(!showAdvanced)} 
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
           className="w-full text-stone-400 hover:text-amber-600 font-bold text-[9px] uppercase tracking-widest py-3 border-t border-amber-50 transition-all flex items-center justify-center gap-2"
         >
           {showAdvanced ? 'МЕНШЕ НАЛАШТУВАНЬ ↑' : 'ДЕТАЛЬНІ ХАРАКТЕРИСТИКИ ↓'}
