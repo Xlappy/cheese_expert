@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cheese } from '../types';
-import { BadgeCheck, Info, ChevronRight, Star, TrendingUp } from 'lucide-react';
+import { BadgeCheck, Info, ChevronRight, Star, TrendingUp, RefreshCcw } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 
 interface CheeseCardProps {
     cheese: Cheese;
     onClick: () => void;
+    onReplace?: (e: React.MouseEvent) => void;
 }
 
-const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick }) => {
+const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick, onReplace }) => {
     const [isHovered, setIsHovered] = useState(false);
+
+    // Debug indicator
+    const hasReplace = !!onReplace;
 
     // Data for radar chart
     const radarData = [
@@ -43,12 +47,16 @@ const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick }) => {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
             {/* The Circular Body */}
-            <div className="absolute inset-0 bg-artisan-surface rounded-full shadow-artisan overflow-hidden border border-white/[0.05] group-hover:border-artisan-accent/50 transition-all duration-700 flex items-center justify-center paper-texture">
-                {/* Visual Background Glow */}
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-artisan-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="absolute inset-0 rounded-full shadow-artisan overflow-hidden border border-white/[0.05] group-hover:border-artisan-accent/50 transition-all duration-700 flex items-center justify-center paper-texture bg-artisan-surface">
 
-                {/* Front View */}
-                <AnimatePresence mode="wait">
+                {/* SOLID BASE LAYER - MUST BE SOLID TO PREVENT FLICKER */}
+                <div className="absolute inset-0 bg-[#1c1917] z-0" />
+
+                {/* Visual Background Glow */}
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-artisan-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1]"></div>
+
+                {/* Transitions */}
+                <AnimatePresence initial={false}>
                     {!isHovered ? (
                         <motion.div
                             key="front"
@@ -81,10 +89,10 @@ const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick }) => {
                     ) : (
                         <motion.div
                             key="back"
-                            initial={{ scale: 0.8, opacity: 0, rotate: -5 }}
-                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                            exit={{ scale: 1.1, opacity: 0, rotate: 5 }}
-                            className="w-full h-full p-8 flex flex-col items-center justify-center bg-artisan-dark/90 backdrop-blur-xl relative z-10"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-full h-full p-8 flex flex-col items-center justify-center bg-[#0c0a09] relative z-10"
                         >
                             <div className="w-full h-40 mb-2 relative">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -138,6 +146,25 @@ const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick }) => {
                 </div>
             )}
 
+            {/* Replace Button - Moved to top-right inside and made even more prominent */}
+            {hasReplace && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute top-4 left-4 z-[100]"
+                >
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onReplace?.(e);
+                        }}
+                        className="w-16 h-16 bg-artisan-accent text-artisan-dark rounded-full shadow-[0_0_40px_rgba(249,164,53,0.6)] flex items-center justify-center hover:scale-110 active:scale-90 transition-all border-4 border-[#0c0a09]"
+                    >
+                        <RefreshCcw size={28} strokeWidth={3} className="animate-[spin_10s_linear_infinite]" />
+                    </button>
+                </motion.div>
+            )}
+
             {/* Price Tag */}
             <motion.div
                 whileHover={{ scale: 1.1 }}
@@ -145,6 +172,7 @@ const CheeseCard: React.FC<CheeseCardProps> = ({ cheese, onClick }) => {
             >
                 {cheese.pricePer100g} ₴ <span className="text-[9px] opacity-40 ml-1">/ 100g</span>
             </motion.div>
+
         </motion.div>
     );
 };

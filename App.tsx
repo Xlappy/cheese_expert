@@ -26,6 +26,8 @@ import CheeseModal from './components/WineModal';
 import AddCheeseModal from './components/AddWineModal';
 import PairingAssistant from './components/PairingAssistant';
 import CheeseTable from './components/CheeseTable';
+import ReplacementModal from './components/ReplacementModal';
+import { RefreshCcw } from 'lucide-react';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('expert');
@@ -55,6 +57,8 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [recommendLoading, setRecommendLoading] = useState(false);
+  const [rejectedIds, setRejectedIds] = useState<string[]>([]);
+  const [replacingCheeseId, setReplacingCheeseId] = useState<string | null>(null);
 
   const fromager = useMemo(() => new FromagerService(), []);
 
@@ -83,11 +87,11 @@ const App: React.FC = () => {
     setRecommendLoading(true);
     if (!hasAnalyzed) setHasAnalyzed(true);
     setTimeout(() => {
-      const recs = fromager.getRecommendations(cheeses, preferences);
+      const recs = fromager.getRecommendations(cheeses, preferences, rejectedIds);
       setRecommendations(recs.slice(0, 5));
       setRecommendLoading(false);
     }, 1200);
-  }, [cheeses, preferences, fromager, hasAnalyzed]);
+  }, [cheeses, preferences, fromager, hasAnalyzed, rejectedIds]);
 
   const updateCheese = async (updatedWines: Cheese[]) => {
     try {
@@ -289,18 +293,21 @@ const App: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="flex overflow-x-auto artisan-scroll pb-12 gap-10 -mx-8 px-8 items-center">
+                          <div className="flex overflow-x-auto artisan-scroll pt-12 pb-12 gap-10 -mx-8 px-8 items-center">
                             {recommendations.map((rec, idx) => {
                               const cheese = cheeses.find(c => c.id === rec.cheeseId);
                               if (!cheese) return null;
                               return (
                                 <motion.div
                                   key={cheese.id}
-                                  initial={{ opacity: 0, x: 20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: idx * 0.1 }}
+                                  whileHover={{ zIndex: 50 }}
+                                  className="relative shrink-0"
                                 >
-                                  <CheeseCard cheese={cheese} onClick={() => setSelectedCheeseId(cheese.id)} />
+                                  <CheeseCard
+                                    cheese={cheese}
+                                    onClick={() => setSelectedCheeseId(cheese.id)}
+                                    onReplace={(e) => { e.stopPropagation(); setReplacingCheeseId(cheese.id); }}
+                                  />
                                 </motion.div>
                               );
                             })}
@@ -434,6 +441,31 @@ const App: React.FC = () => {
             onClose={() => setSelectedCheeseId(null)}
             isFavorite={favorites.includes(selectedCheese.id)}
             onToggleFavorite={(id) => setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {replacingCheeseId && cheeses.find(c => c.id === replacingCheeseId) && (
+          <ReplacementModal
+            isOpen={!!replacingCheeseId}
+            onClose={() => setReplacingCheeseId(null)}
+            originalWine={cheeses.find(c => c.id === replacingCheeseId)!}
+            alternatives={fromager.getRecommendations(cheeses, preferences, [replacingCheeseId, ...recommendations.map(r => r.cheeseId)]).slice(0, 3)}
+            allWines={cheeses}
+            onSelect={(newId) => {
+              setRecommendations(prev => prev.map(r => r.cheeseId === replacingCheeseId ? { cheeseId: newId, explanation: 'Цей варіант підібрано як альтернативу.', score: 85 } : r));
+              setRejectedIds(prev => [...prev, replacingCheeseId]);
+              setReplacingCheeseId(null);
+            }}
+            onAutoSelect={() => {
+              const alternative = fromager.getRecommendations(cheeses, preferences, [replacingCheeseId, ...recommendations.map(r => r.cheeseId)])[0];
+              if (alternative) {
+                setRecommendations(prev => prev.map(r => r.cheeseId === replacingCheeseId ? alternative : r));
+                setRejectedIds(prev => [...prev, replacingCheeseId]);
+              }
+              setReplacingCheeseId(null);
+            }}
           />
         )}
       </AnimatePresence>
