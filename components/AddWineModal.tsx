@@ -27,8 +27,6 @@ const AddCheeseModal: React.FC<AddCheeseModalProps> = ({ isOpen, onClose, onAdd 
     pricePer100g: 0,
   });
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newCheese: Cheese = {
@@ -54,13 +52,15 @@ const AddCheeseModal: React.FC<AddCheeseModalProps> = ({ isOpen, onClose, onAdd 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-artisan-dark/90 backdrop-blur-md"
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-artisan-dark/95 backdrop-blur-xl"
         onClick={onClose}
       />
 
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
         className="relative bg-artisan-surface w-full max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border border-white/5 paper-texture"
       >
         <div className="p-8 md:p-12 border-b border-white/5 flex justify-between items-center bg-artisan-dark/50">

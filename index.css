@@ -1,22 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-artisan-dark: #1c1917;
-  --color-artisan-surface: #292524;
-  --color-artisan-accent: #eb9b34;
-  --color-artisan-cream: #f5f5f4;
-  --color-artisan-olive: #65a30d;
+  --color-artisan-dark: #0c0a09;
+  --color-artisan-surface: #1c1917;
+  --color-artisan-card: #262220;
+  --color-artisan-accent: #f9a435;
+  --color-artisan-cream: #fafaf9;
+  --color-artisan-olive: #84cc16;
+  --color-artisan-gold: #fbbf24;
 
   --font-serif: "Merriweather", serif;
   --font-sans: "Nunito", sans-serif;
 
   --radius-3xl: 1.5rem;
-  --radius-4xl: 2rem;
+  --radius-4xl: 2.5rem;
+  --radius-5xl: 4rem;
+
+  --shadow-artisan: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-accent: 0 10px 30px -5px rgba(249, 164, 53, 0.2);
 }
 
 @layer base {
   body {
-    @apply bg-artisan-dark text-artisan-cream font-sans;
+    @apply bg-artisan-dark text-artisan-cream font-sans antialiased;
+    background-image: radial-gradient(circle at 50% 0%, #1c1917 0%, #0c0a09 100%);
+    background-attachment: fixed;
   }
 
   h1,
@@ -25,30 +33,65 @@
   h4,
   h5,
   h6 {
-    @apply font-serif;
+    @apply font-serif tracking-tight;
   }
 }
 
-/* Custom Scrollbar */
-.artisan-scroll::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.05];
+  }
 
-.artisan-scroll::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
+  .glass-card {
+    @apply bg-artisan-card/40 backdrop-blur-md border border-white/[0.05] hover:border-artisan-accent/30 transition-all duration-500;
+  }
 
-.artisan-scroll::-webkit-scrollbar-thumb {
-  @apply bg-artisan-accent/30 rounded-full hover:bg-artisan-accent transition-colors;
-}
+  .text-glow {
+    text-shadow: 0 0 20px rgba(249, 164, 53, 0.3);
+  }
 
-.paper-texture {
-  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
-}
+  .artisan-scroll::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+  }
 
-.wood-texture {
-  background-image: url("https://www.transparenttextures.com/patterns/dark-wood.png");
+  .artisan-scroll::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .artisan-scroll::-webkit-scrollbar-thumb {
+    @apply bg-artisan-accent/20 rounded-full hover:bg-artisan-accent/50 transition-colors;
+  }
+
+  .paper-texture {
+    position: relative;
+  }
+
+  .paper-texture::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
+
+  .wood-texture {
+    position: relative;
+  }
+
+  .wood-texture::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("https://www.transparenttextures.com/patterns/dark-wood.png");
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
