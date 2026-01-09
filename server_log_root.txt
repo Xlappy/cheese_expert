@@ -1,0 +1,7 @@
+📦 Database empty or missing. Auto-seeding...
+🌱 Starting database seeding...
+📦 Parsed 75 cheese items to seed.
+✅ Successfully seeded 75 cheese items!
+📊 Database now contains 75 cheeses.
+🧀 Cheese Expert Server running at http://localhost:3003
+📊 API endpoints available at http://localhost:3003/api/cheeses

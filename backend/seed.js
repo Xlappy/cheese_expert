@@ -30,15 +30,17 @@ function seedDatabase(db) {
         const rawDataPath = path.join(__dirname, 'raw_data.txt');
         let rawContent = fs.readFileSync(rawDataPath, 'utf8');
 
-        // Clean up the export statement
-        rawContent = rawContent.replace(/export const INITIAL_CHEESES: Cheese\[\] = /, '');
-        rawContent = rawContent.trim();
-        if (rawContent.endsWith(';')) {
-            rawContent = rawContent.slice(0, -1);
+        // Efficiently extract the array content
+        const arrayMatch = rawContent.match(/const INITIAL_CHEESES: Cheese\[\] = (\[[\s\S]*?\]);/);
+
+        if (!arrayMatch) {
+            throw new Error("Could not find INITIAL_CHEESES array in raw_data.txt");
         }
 
-        // Parse the JavaScript array
-        const getCheeses = new Function(`return ${rawContent}`);
+        let arrayString = arrayMatch[1];
+
+        // Use Function to safely evaluate the array string (caution: only for trusted data)
+        const getCheeses = new Function(`return ${arrayString}`);
         const cheeses = getCheeses();
 
         console.log(`📦 Parsed ${cheeses.length} cheese items to seed.`);

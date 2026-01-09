@@ -1,6 +1,6 @@
 import { Cheese } from '../types';
 
-const API_BASE_URL = 'http://localhost:3003/api';
+const API_BASE_URL = 'http://127.0.0.1:3003/api';
 
 /**
  * API Service for Cheese Expert System
@@ -12,13 +12,16 @@ export class CheeseAPI {
      */
     static async getAllCheeses(): Promise<Cheese[]> {
         try {
+            console.log(`Fetching cheeses from: ${API_BASE_URL}/cheeses`);
             const response = await fetch(`${API_BASE_URL}/cheeses`);
 
             if (!response.ok) {
+                console.error(`Fetch failed with status: ${response.status}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
+            console.log(`Successfully fetched ${data.length} cheeses`);
             return data;
         } catch (error) {
             console.error('Error fetching cheeses:', error);

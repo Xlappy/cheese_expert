@@ -1,0 +1,14 @@
+total 136
+drwxr-xr-x. 1 pcselo pcselo   270 Jan  9 14:02 .
+drwxr-xr-x. 1 pcselo pcselo   736 Jan  9 17:21 ..
+-rw-r--r--. 1 pcselo pcselo   440 Jan  9 14:02 check_db.cjs
+-rw-r--r--. 1 pcselo pcselo 24576 Jan  9 13:29 database.sqlite
+drwxr-xr-x. 1 pcselo pcselo  2148 Jan  9 00:36 node_modules
+-rw-r--r--. 1 pcselo pcselo   504 Jan  9 00:25 package.json
+-rw-r--r--. 1 pcselo pcselo 53170 Jan  9 00:36 package-lock.json
+-rw-r--r--. 1 pcselo pcselo 24355 Jan  9 00:26 raw_data.txt
+-rw-r--r--. 1 pcselo pcselo  3352 Jan  9 01:07 seed.js
+-rw-r--r--. 1 pcselo pcselo  9502 Jan  9 00:25 server.js
+-rw-r--r--. 1 pcselo pcselo   159 Jan  9 13:28 server.log
+-rw-r--r--. 1 pcselo pcselo   324 Jan  9 13:29 server_restart.log
+-rw-r--r--. 1 pcselo pcselo   946 Jan  9 00:26 test_api.js

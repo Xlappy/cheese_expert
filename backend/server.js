@@ -48,6 +48,7 @@ initializeDatabase();
 
 // GET /api/cheeses - Get all cheeses
 app.get('/api/cheeses', (req, res) => {
+    console.log(`[${new Date().toISOString()}] GET /api/cheeses - Request from ${req.ip}`);
     try {
         const cheeses = db.prepare('SELECT * FROM cheeses').all();
 
@@ -301,7 +302,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(port, () => {
-    console.log(`🧀 Cheese Expert Server running at http://localhost:${port}`);
-    console.log(`📊 API endpoints available at http://localhost:${port}/api/cheeses`);
+const HOST = '0.0.0.0';
+app.listen(port, HOST, () => {
+    console.log(`UNIQUE_SERVER_START: Fromagerie Server Active at http://${HOST}:${port}`);
+    console.log(`📊 API endpoints available at http://${HOST}:${port}/api/cheeses`);
 });
